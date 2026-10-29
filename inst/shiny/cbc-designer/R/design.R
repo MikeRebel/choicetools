@@ -223,5 +223,27 @@ generate_design <- function(s, progress = NULL) {
     if (!is.null(progress)) progress(v, V)
     make_version(cs, ds, lay, next_pool(), fpos)
   }))
-  assemble_design(blocks, cs, ds, fpos)
+  d <- assemble_design(blocks, cs, ds, fpos)
+  d$meta$sig <- design_signature(s)
+  d
+}
+
+# What a design depends on. Labels, None text and layout settings are not part of it,
+# so editing them never makes a generated design out of date.
+design_signature <- function(s) {
+  cs <- compile_study(s); ds <- s$settings
+  list(nlev = cs$nlev, forb = cs$forb, fixed = cs$fixed,
+       general = ds$general[c("random_tasks", "fixed_tasks", "concepts")],
+       design = ds$design, fpos = fixed_positions(ds))
+}
+
+design_is_current <- function(design, s) {
+  if (is.null(design)) return(FALSE)
+  if (identical(design$meta$method, "imported")) {
+    cs <- compile_study(s)
+    return(identical(as.integer(design$meta$nlev), as.integer(cs$nlev)) &&
+             design$meta$concepts == s$settings$general$concepts &&
+             length(unique(design$table$Task)) == tasks_total(s$settings))
+  }
+  identical(design$meta$sig, design_signature(s))
 }

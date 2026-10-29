@@ -42,8 +42,8 @@ default_settings <- function() list(
 )
 
 # Coerce anything (UI inputs, JSON) into a complete, in-range settings list.
-sanitize_settings <- function(x) {
-  d <- default_settings(); x <- if (is.list(x)) x else list()
+sanitize_settings <- function(x, d = default_settings()) {
+  x <- if (is.list(x)) x else list()
   g <- x$general; n <- x$none; f <- x$format; e <- x$design
   list(
     general = list(
@@ -74,7 +74,7 @@ sanitize_settings <- function(x) {
       pos_first = as_int(e$pos_first, d$design$pos_first, 1L, 30L),
       pos_last = as_int(e$pos_last, d$design$pos_last, 1L, 30L),
       sort = as_choice(e$sort, c("none", "random", "natural"), d$design$sort),
-      sort_attr = as_chr(e$sort_attr, NA_character_),
+      sort_attr = { sa <- as_chr(e$sort_attr, NA_character_); if (is.na(sa) || !nzchar(sa)) NA_character_ else sa },
       first_attr_once = as_lgl(e$first_attr_once, d$design$first_attr_once)),
     fixed = list(positions = as.integer(unlist(x$fixed$positions)))
   )
@@ -184,6 +184,15 @@ set_levels_bulk <- function(s, attr, labels) {
   }
   s$levels <- rbind(rest, new)
   tidy_study(s)
+}
+
+# Pick the level shown for one attribute of one concept of a fixed task.
+set_fixed_cell <- function(s, task, concept, attr, level) {
+  stopifnot(level %in% s$levels$id[s$levels$attr == attr])
+  row <- s$fixed$task == task & s$fixed$concept == concept & s$fixed$attr == attr
+  if (!any(row)) stop("No such fixed task cell.", call. = FALSE)
+  s$fixed$level[row] <- level
+  s
 }
 
 # ---- prohibitions ---------------------------------------------------------

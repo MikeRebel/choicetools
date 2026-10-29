@@ -148,3 +148,8 @@ test("a fixed concept that breaks a prohibition is a warning, not an error", {
   expect_true(any(iss$severity == "warning" & grepl("Fixed task 1, concept 1", iss$message)))
   expect_equal(sum(iss$severity == "error"), 0)
 })
+
+test("a fixed-task cell only accepts levels of its own attribute", {
+  s <- new_study()
+  expect_error(set_fixed_cell(s, 1, 1, aid(s, "Brand"), lid(s, "Price", "$199")))
+})
