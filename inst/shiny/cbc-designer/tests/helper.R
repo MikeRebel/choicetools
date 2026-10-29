@@ -40,6 +40,20 @@ lid <- function(s, attr_name, label) {
 }
 aid <- function(s, attr_name) s$attributes$id[s$attributes$name == attr_name]
 
+base_study <- function(versions = 20L, method = "complete") {
+  s <- new_study()
+  s$settings$design$versions <- versions
+  s$settings$design$method <- method
+  tidy_study(s)
+}
+prohib_study <- function(method = "complete", versions = 20L) {
+  s <- base_study(versions, method)
+  b <- aid(s, "Brand"); p <- aid(s, "Price"); sc <- aid(s, "Screen size")
+  s <- toggle_prohibition(s, b, lid(s, "Brand", "Acme"),  p, lid(s, "Price", "$499"))
+  s <- toggle_prohibition(s, b, lid(s, "Brand", "Delta"), p, lid(s, "Price", "$199"))
+  toggle_prohibition(s, b, lid(s, "Brand", "Delta"), sc, lid(s, "Screen size", "5.4\""))
+}
+
 finish_tests <- function() {
   cat("\n", .results$pass, " passed, ", length(.results$fail), " failed\n", sep = "")
   if (length(.results$fail)) quit(status = 1L)

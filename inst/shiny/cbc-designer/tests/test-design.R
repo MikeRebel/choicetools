@@ -1,19 +1,5 @@
 # Unit 2: generating a CBC design (versions x tasks x concepts).
 
-base_study <- function(versions = 20L, method = "complete") {
-  s <- new_study()
-  s$settings$design$versions <- versions
-  s$settings$design$method <- method
-  tidy_study(s)
-}
-prohib_study <- function(method = "complete", versions = 20L) {
-  s <- base_study(versions, method)
-  b <- aid(s, "Brand"); p <- aid(s, "Price"); sc <- aid(s, "Screen size")
-  s <- toggle_prohibition(s, b, lid(s, "Brand", "Acme"),  p, lid(s, "Price", "$499"))
-  s <- toggle_prohibition(s, b, lid(s, "Brand", "Delta"), p, lid(s, "Price", "$199"))
-  toggle_prohibition(s, b, lid(s, "Brand", "Delta"), sc, lid(s, "Screen size", "5.4\""))
-}
-
 # independent re-implementation of "does this concept break a prohibition?"
 breaks_prohibition <- function(s, tab) {
   ids <- s$attributes$id

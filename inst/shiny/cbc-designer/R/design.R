@@ -153,9 +153,10 @@ make_task <- function(cs, ds, lay, st, pool, once) {
   unname(task_x)
 }
 
-# Concepts sorted by one attribute, with one level order per version (constant across tasks).
+# Concept order inside a task: fully randomised, or sorted by one attribute with one
+# level order per version (constant across tasks).
 sort_concepts <- function(tasks, cs, d) {
-  if (d$sort == "none") return(tasks)
+  if (d$sort == "none") return(lapply(tasks, function(m) m[sample.int(nrow(m)), , drop = FALSE]))
   a <- match(d$sort_attr, cs$attr_ids)
   rank <- if (d$sort == "random") sample.int(cs$nlev[a]) else seq_len(cs$nlev[a])
   lapply(tasks, function(m) m[order(rank[m[, a]], stats::runif(nrow(m))), , drop = FALSE])
