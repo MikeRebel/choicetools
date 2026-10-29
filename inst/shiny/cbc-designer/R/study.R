@@ -427,7 +427,8 @@ issue <- function(severity, where, message)
 
 validate_study <- function(s) {
   cs <- compile_study(s)
-  parts <- c(check_attributes(s, cs), check_settings(s, cs), check_prohibitions(s, cs))
+  parts <- c(check_attributes(s, cs), check_settings(s, cs), check_prohibitions(s, cs),
+             check_fixed(s, cs))
   if (!length(parts)) return(issue(character(), character(), character()))
   do.call(rbind, parts)
 }
@@ -455,6 +456,9 @@ check_settings <- function(s, cs) {
   out <- list(); add <- function(...) out[[length(out) + 1L]] <<- issue(...)
   g <- s$settings$general; d <- s$settings$design
   if (tasks_total(s$settings) < 1L) add("error", "cbc", "Add at least one choice task.")
+  if (cs$A > 0L && cs$total < g$concepts)
+    add("error", "attrs", sprintf("The levels allow only %.0f distinct concepts, but each task shows %d. Add levels or show fewer concepts.",
+                                  cs$total, g$concepts))
   if (d$sort != "none" && is.na(d$sort_attr))
     add("error", "design", "Choose the attribute to sort concepts by, or turn concept sorting off.")
   if (cs$A > 0L && d$first_attr_once && g$concepts > cs$nlev[1])
@@ -481,9 +485,31 @@ check_prohibitions <- function(s, cs) {
   for (a in seq_len(cs$A)) for (l in setdiff(seq_len(cs$nlev[a]), unique(X[, a])))
     add("error", "prohibs", sprintf("\"%s\" (%s) can never be shown: the prohibitions rule out every concept containing it.",
                                     cs$level_labels[[a]][l], cs$attr_names[a]))
+  if (nrow(X) < s$settings$general$concepts)
+    add("error", "prohibs", sprintf("The prohibitions leave only %d allowed concepts, but each task shows %d.",
+                                    nrow(X), s$settings$general$concepts))
   share <- 1 - nrow(X) / cs$total
   if (share > 0.3)
     add("warning", "prohibs", sprintf("Prohibitions remove %.0f%% of all possible concepts; heavy prohibitions weaken the design.", 100 * share))
+  out
+}
+
+# Fixed tasks are the user's own choice, so a prohibited combination there is a
+# warning (it may be intended), not an error.
+check_fixed <- function(s, cs) {
+  out <- list()
+  n <- dim(cs$fixed)[1]
+  if (length(cs$forb_active) == 0L || n == 0L) return(out)
+  for (t in seq_len(n)) for (j in seq_len(dim(cs$fixed)[2])) {
+    x <- cs$fixed[t, j, ]
+    for (k in cs$forb_active) {
+      a <- cs$pairs[k, 1]; b <- cs$pairs[k, 2]
+      if (cs$forb[[k]][x[a], x[b]])
+        out[[length(out) + 1L]] <- issue("warning", "cbc",
+          sprintf("Fixed task %d, concept %d combines \"%s\" with \"%s\", which a prohibition rules out.",
+                  t, j, cs$level_labels[[a]][x[a]], cs$level_labels[[b]][x[b]]))
+    }
+  }
   out
 }
 

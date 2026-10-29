@@ -1,12 +1,6 @@
 # Unit 1: the study model (attributes, levels, prohibitions, conditional
 # relationships, fixed tasks) and its JSON round trip.
 
-lid <- function(s, attr_name, label) {
-  a <- s$attributes$id[s$attributes$name == attr_name]
-  s$levels$id[s$levels$attr == a & s$levels$label == label]
-}
-aid <- function(s, attr_name) s$attributes$id[s$attributes$name == attr_name]
-
 cat("study model\n")
 
 test("a new study is a valid example with three attributes", {
@@ -136,4 +130,21 @@ test("a study survives the JSON round trip unchanged", {
 test("garbage JSON is rejected with a clear message", {
   expect_error(parse_study("{\"hello\": 1}"), "not a CBC study")
   expect_error(parse_study("not json"), "not a CBC study")
+})
+
+test("fewer allowed concepts than a task needs is an error", {
+  s <- new_study(example = FALSE)           # two attributes with two levels = 4 concepts
+  s$settings$general$concepts <- 5L
+  expect_true(any(grepl("only 4 distinct", validate_study(tidy_study(s))$message)))
+})
+
+test("a fixed concept that breaks a prohibition is a warning, not an error", {
+  s <- new_study()
+  b <- aid(s, "Brand"); p <- aid(s, "Price")
+  x <- s$fixed[s$fixed$task == 1 & s$fixed$concept == 1, ]
+  lb <- x$level[x$attr == b]; lp <- x$level[x$attr == p]
+  s <- toggle_prohibition(s, b, lb, p, lp)
+  iss <- validate_study(s)
+  expect_true(any(iss$severity == "warning" & grepl("Fixed task 1, concept 1", iss$message)))
+  expect_equal(sum(iss$severity == "error"), 0)
 })

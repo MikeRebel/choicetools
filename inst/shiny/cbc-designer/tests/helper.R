@@ -33,6 +33,13 @@ expect_error <- function(expr, pattern = NULL) {
     stop("error '", msg, "' does not match '", pattern, "'", call. = FALSE)
 }
 
+# ---- fixtures shared by the test files
+lid <- function(s, attr_name, label) {
+  a <- s$attributes$id[s$attributes$name == attr_name]
+  s$levels$id[s$levels$attr == a & s$levels$label == label]
+}
+aid <- function(s, attr_name) s$attributes$id[s$attributes$name == attr_name]
+
 finish_tests <- function() {
   cat("\n", .results$pass, " passed, ", length(.results$fail), " failed\n", sep = "")
   if (length(.results$fail)) quit(status = 1L)
