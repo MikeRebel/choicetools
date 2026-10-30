@@ -63,7 +63,7 @@ read_design_csv <- function(x, study) {
   cs <- compile_study(study); ds <- study$settings
   df <- tryCatch(
     if (length(x) == 1L && !grepl("\n", x, fixed = TRUE) && file.exists(x))
-      utils::read.csv(x, check.names = FALSE, stringsAsFactors = FALSE)
+      utils::read.csv(x, check.names = FALSE, stringsAsFactors = FALSE, fileEncoding = "UTF-8-BOM")
     else utils::read.csv(text = x, check.names = FALSE, stringsAsFactors = FALSE),
     error = function(e) stop("Could not read the file as CSV.", call. = FALSE))
   low <- tolower(trimws(names(df))); key <- match(c("version", "task", "concept"), low)

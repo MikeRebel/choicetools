@@ -4,8 +4,11 @@
 .results$pass <- 0L
 .results$fail <- character()
 
+# Each test runs in its own child environment: a variable a test creates (say `txt`) must
+# never replace a function of the same name from the app code.
 test <- function(desc, code) {
-  res <- tryCatch({ force(code); NULL }, error = function(e) conditionMessage(e))
+  expr <- substitute(code)
+  res <- tryCatch({ eval(expr, new.env(parent = parent.frame())); NULL }, error = function(e) conditionMessage(e))
   if (is.null(res)) {
     .results$pass <- .results$pass + 1L
     cat("  ok   ", desc, "\n", sep = "")
