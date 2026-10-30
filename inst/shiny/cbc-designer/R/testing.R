@@ -90,7 +90,7 @@ overlap_summary <- function(tab, cs, J) {
 }
 
 position_summary <- function(tab, cs, sort_attr) {
-  sorted <- cs$attr_ids == sort_attr
+  sorted <- !is.na(sort_attr) & cs$attr_ids == sort_attr
   data.frame(attr = seq_len(cs$A), attr_name = cs$attr_names,
              max_dev_pct = vapply(seq_len(cs$A), function(a) {
                m <- table(factor(tab[[paste0("Att", a)]], seq_len(cs$nlev[a])), tab$Concept)

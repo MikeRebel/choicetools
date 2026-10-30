@@ -157,3 +157,12 @@ test("without fixed tasks, changing the number of random tasks still makes the d
   s2 <- s; s2$settings$general$total_points <- 50L; s2 <- tidy_study(s2)   # layout only
   expect_true(design_is_current(d, s2))
 })
+
+test("the respondent count for the report is clamped, and the relationship's attributes arrive comma-joined", {
+  u <- new_ui_state(new_study()); s <- new_study()
+  u <- apply_ui_event(u, s, ev("set_test_n", value = 1));      expect_equal(u$test_n, 2L)
+  u <- apply_ui_event(u, s, ev("set_test_n", value = "450"));   expect_equal(u$test_n, 450L)
+  b <- aid(s, "Brand"); sc <- aid(s, "Screen size"); p <- aid(s, "Price")
+  s2 <- apply_study_event(s, ev("cond_create", target = p, on = paste(b, sc, sep = ",")))
+  expect_equal(nrow(s2$cond), 4 * (4 * 3))
+})

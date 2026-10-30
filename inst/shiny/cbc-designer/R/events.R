@@ -31,7 +31,7 @@ apply_study_event <- function(s, ev) {
       tidy_study(s)
     },
     clear_prohibs   = clear_prohibitions(s),
-    cond_create     = set_conditional(s, ev$target, unlist(ev$on)),
+    cond_create     = set_conditional(s, ev$target, unlist(strsplit(paste(unlist(ev$on), collapse = ","), ","))),
     cond_remove     = remove_conditional(s, ev$target),
     set_cond_cell   = set_conditional_text(s, ev$target, ev$tlevel, ev$key, as_chr(ev$value)),
     set_fixed_cell  = set_fixed_cell(s, as_int(ev$task, 1L), as_int(ev$concept, 1L), ev$attr, ev$level),
@@ -46,7 +46,7 @@ new_ui_state <- function(s) {
   fix_ui_state(list(page = "attrs", sel_attr = NA_character_, proh_a = NA_character_, proh_b = NA_character_,
                     cond_target = NA_character_, cond_on = character(),
                     preview = list(version = 1L, task = 1L, seed = 1L),
-                    rep_a = NA_integer_, rep_b = NA_integer_, browse_version = 1L), s)
+                    rep_a = NA_integer_, rep_b = NA_integer_, browse_version = 1L, test_n = 300L), s)
 }
 
 # Keep every selection pointing at something that still exists.
@@ -96,6 +96,7 @@ apply_ui_event <- function(u, s, ev, dims = NULL) {
       }
     },
     preview_shuffle = { u$preview$seed <- v$seed + 1L },
+    set_test_n = { u$test_n <- as.integer(clamp(as_int(ev$value, u$test_n), 2L, 100000L)) },
     rep_pair = { u$rep_a <- as_int(ev$a, u$rep_a); u$rep_b <- as_int(ev$b, u$rep_b) },
     browse_version = { u$browse_version <- as.integer(clamp(as_int(ev$value, 1L), 1L, dims[1] %||% 1L)) },
     NULL)

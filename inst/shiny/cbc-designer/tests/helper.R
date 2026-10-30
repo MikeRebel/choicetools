@@ -54,6 +54,9 @@ prohib_study <- function(method = "complete", versions = 20L) {
   toggle_prohibition(s, b, lid(s, "Brand", "Delta"), sc, lid(s, "Screen size", "5.4\""))
 }
 
+html <- function(x) paste(as.character(tagList(x)), collapse = "")
+count <- function(pattern, x) length(regmatches(x, gregexpr(pattern, x, fixed = TRUE))[[1]])
+
 finish_tests <- function() {
   cat("\n", .results$pass, " passed, ", length(.results$fail), " failed\n", sep = "")
   if (length(.results$fail)) quit(status = 1L)

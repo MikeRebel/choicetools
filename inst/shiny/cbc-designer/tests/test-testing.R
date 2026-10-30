@@ -123,3 +123,8 @@ test("standard errors agree with a numerical Hessian of the expected log-likelih
   expect_equal(got$se, ref, tol = 1e-4)
   expect_equal(got$none_se, sqrt(Sigma[k, k]), tol = 1e-4)
 })
+
+test("without concept sorting no attribute is flagged as sorted (and nothing is NA)", {
+  s <- base_study(5L); r <- test_design(generate_design(s), s)
+  expect_identical(r$position$sorted, c(FALSE, FALSE, FALSE))
+})
