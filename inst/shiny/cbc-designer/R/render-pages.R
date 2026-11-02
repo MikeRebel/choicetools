@@ -158,7 +158,7 @@ ui_page_prohibs <- function(s, ui, issues) {
                                nrow(la) * nrow(lb), aname(s, a), aname(s, b))),
     tags$h2(sprintf("All prohibitions (%d)", nrow(p))),
     if (nrow(p)) div(class = "chips", lapply(seq_len(nrow(p)), function(i)
-      div(class = "chip", tags$span(sprintf("%s: %s  x  %s: %s", aname(s, p$a[i]), lbl(s, p$la[i]), aname(s, p$b[i]), lbl(s, p$lb[i]))),
+      div(class = "chip", tags$span(sprintf("%s: %s with %s: %s", aname(s, p$a[i]), lbl(s, p$la[i]), aname(s, p$b[i]), lbl(s, p$lb[i]))),
           icon_btn("x", "remove_prohib", "Remove prohibition", `data-index` = i))),
       btn("Clear all", "clear_prohibs", class = "btn btn-link"))
     else tags$p(class = "hint", "None yet. Click a cell above to prohibit that pair."))
@@ -273,7 +273,7 @@ ui_report <- function(s, d, r, ui) {
         tags$span(class = "chip", sprintf("%d concepts per task", sm$concepts)),
         tags$span(class = "chip", paste("Method:", sm$method))),
     section("Standard errors",
-      "Expected precision of the part-worths if respondents answered at random, the same assumption as Sawtooth's Test Design. Aim for the largest standard error to be about 0.05, preferably 0.03.",
+      "Expected precision of the part-worths if respondents answered at random, the same assumption as Sawtooth's Test Design. Aim for the largest standard error to be about 0.05, preferably 0.03; the two ticks mark those values.",
       div(class = "n-input", tags$label("Respondents",
         tags$input(type = "number", class = "num", min = 2, value = sm$n, `data-evt` = "set_test_n"))),
       if (!r$estimable) div(class = "issues", div(class = "issue error", tags$span(class = "issue-mark"),

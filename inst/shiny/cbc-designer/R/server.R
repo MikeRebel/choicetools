@@ -161,8 +161,10 @@ cbc_server <- function(input, output, session) {
                         if (identical(d$meta$method, "imported")) ", imported" else ""),
       stale = "Design out of date")
     div(class = "status", tags$span(class = paste("state", design_state()), label),
-        if (ne) tags$span(class = "count err", sprintf("%d %s", ne, if (ne == 1L) "error" else "errors")),
-        if (nw) tags$span(class = "count warn", sprintf("%d %s", nw, if (nw == 1L) "warning" else "warnings")))
+        if (ne) tags$button(type = "button", class = "count err", `data-evt` = "goto", `data-page` = "notes", title = "Show the checks",
+                            sprintf("%d %s", ne, if (ne == 1L) "error" else "errors")),
+        if (nw) tags$button(type = "button", class = "count warn", `data-evt` = "goto", `data-page` = "notes", title = "Show the checks",
+                            sprintf("%d %s", nw, if (nw == 1L) "warning" else "warnings")))
   })
 
   # ---- downloads --------------------------------------------------------------
